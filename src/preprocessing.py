@@ -1,14 +1,14 @@
 import pandas as pd
 
 def engineer_features(data: pd.DataFrame) -> pd.DataFrame:
-    """特征工程核心函数：自动生成聚合与比率特征，并剔除共线性特征"""
+    """"Core feature engineering function: automatically generates aggregate and ratio features, and drops collinear features"""
     df_out = data.copy()
     
-# 确保 TotalCharges 为数值型
+# Ensure TotalCharges is numeric
     if 'TotalCharges' in df_out.columns:
         df_out['TotalCharges'] = pd.to_numeric(df_out['TotalCharges'], errors='coerce').fillna(0)
     
-    # 1. 增值服务总数统计 -> 生成 TotalServices
+    # 1. Count total value-added services -> Generate TotalServices
     service_cols = ['MultipleLines', 'OnlineSecurity', 'OnlineBackup', 
                     'DeviceProtection', 'TechSupport', 'StreamingTV', 'StreamingMovies']
     for col in service_cols:
@@ -19,11 +19,11 @@ def engineer_features(data: pd.DataFrame) -> pd.DataFrame:
     df_out['TotalServices'] = df_out[flag_cols].sum(axis=1)
     df_out = df_out.drop(columns=flag_cols)
     
-    # 2. 费用比率计算 -> 生成 AvgMonthlyCharges 和 ChargeRatio
+    # 2. Calculate charge ratios -> Generate AvgMonthlyCharges and ChargeRatio
     df_out['AvgMonthlyCharges'] = df_out['TotalCharges'] / (df_out['tenure'] + 1)
     df_out['ChargeRatio'] = df_out['MonthlyCharges'] / (df_out['AvgMonthlyCharges'] + 1e-5)
     
-    # 3. 剔除高共线性的 TotalCharges
+    # 3. Drop highly collinear TotalCharges
     if 'TotalCharges' in df_out.columns:
         df_out = df_out.drop(columns=['TotalCharges'])
         

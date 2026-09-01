@@ -2,7 +2,6 @@ import joblib
 import pandas as pd
 from fastapi import FastAPI, HTTPException
 
-# 显式引入特征工程函数，防止反序列化找不到属性
 from src.preprocessing import engineer_features
 from app.schemas import CustomerInput, ChurnPredictionOutput
 

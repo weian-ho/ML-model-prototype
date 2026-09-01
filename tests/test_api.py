@@ -4,13 +4,13 @@ from app.main import app
 client = TestClient(app)
 
 def test_health_check_endpoint():
-    """测试 GET /health 接口"""
+    """test GET /health endpoint"""
     response = client.get("/health")
     assert response.status_code == 200
     assert response.json() == {"status": "healthy", "model_loaded": True}
 
 def test_predict_endpoint_valid_payload():
-    """测试 POST /predict 传入有效数据时的推理结果"""
+    """Test the inference result of POST /predict with a valid payload."""
     payload = {
         "gender": "Female",
         "SeniorCitizen": 0,
@@ -41,16 +41,16 @@ def test_predict_endpoint_valid_payload():
     assert "churn_prediction" in data
     assert "decision_threshold" in data
     
-    # 验证概率边界与预测结果取值
+    # Verify probability bounds and prediction value range
     assert 0.0 <= data["churn_probability"] <= 1.0
     assert data["churn_prediction"] in ["Yes", "No"]
     assert data["decision_threshold"] == 0.49
 
 def test_predict_endpoint_missing_field_validation():
-    """测试 POST /predict 缺少必填字段时，是否返回 422 状态码"""
+    """Test whether POST /predict returns HTTP 422 when required fields are missing"""
     invalid_payload = {
         "gender": "Female",
-        # 故意缺少其余 18 个字段
+        #Intentionally omitting the remaining 18 fields
     }
     
     response = client.post("/predict", json=invalid_payload)
